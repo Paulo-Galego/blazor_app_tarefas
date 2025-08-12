@@ -1,0 +1,44 @@
+﻿@using todo_list.Services
+
+@inject TodoService todoService
+
+@if (EditedTodo != null)
+{
+    <h4 class="mt-2">Modificar Tarefa</h4>
+    <form>
+        <div class="mt-2">
+            <label class="form-label" for="">Título</label>
+            <InputText class="form-control" required @bind-Value="EditedTodo.Title"/>
+        </div>
+         <div class="mt-2">
+            <label class="form-label" for="">Descrição</label>
+            <InputTextArea class="form-control" required @bind-Value="EditedTodo.Description"/>
+        </div>
+        <div class="mt-2">
+            <label class="form-label" for="">Prioridade</label>
+            <select class="form-select" @bind="EditedTodo.Priority">
+                <option value=null>-- Selecione --</option>
+                @foreach (var item in Enum.GetValues(typeof(TodoPriotity))) 
+                {
+                        <option value="@item">@item</option>
+                }
+                
+            </select>
+        </div>
+        <div class="mt-4 mb-2">
+            <button class="btn btn-dark"@onclick="SaveTodoAsync" >Salvar</button>
+            <button class="btn btn-secondary">Cancelar</button>
+        </div>
+    </form>
+}
+
+@code {
+    [Parameter]
+    public Todo? EditedTodo { get; set; }
+
+    private async Task SaveTodoAsync(){
+        if(EditedTodo != null){
+            EditedTodo = await todoService.UpdateTodoAsync(EditedTodo);
+        }
+    }
+}

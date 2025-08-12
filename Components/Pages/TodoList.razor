@@ -1,0 +1,93 @@
+﻿@page "/todolist"
+@rendermode InteractiveServer
+@using todo_list.Services
+@inject TodoService todoService
+
+<PageTitle>Lista de Tarefas</PageTitle>
+
+<h3>Lista de Tarefas</h3>
+
+<button class="btn btn-dark" @onclick="GetActiveTodosAsync">Recarregar</button>
+
+@if(todos != null && todos.Any())
+{
+    <table class="table table-stdiped">
+        <thead>
+            <th>Title </th>
+            <th>Priotity</th> 
+            <th>Done</th>
+            <th>DoneDate</th>
+            <th>*</th>
+        </thead>
+        <tbody>
+            @foreach(var todo in todos)
+            {
+                <tr
+                    style="cursor: pointer; @(todo.Done ? "text-decoration: line-through;": "")" 
+                    class="@(todo.Priority ==TodoPriotity.Urgent ? "table-danger" : "")"
+                    @onclick="() => ChangePriorityAsync(todo)">
+                    <td>@todo.Title </td>
+                    <td>@todo.Priority</td> 
+                    <td><input type="checkbox" checked="@todo.Done" @onchange="() =>UpdateDoneDate(todo)"></td>
+                    <td>@(todo.DoneDate.HasValue ? todo.DoneDate.Value.ToString("dd/MM/yyyy") :"")</td>
+                    <td>
+                        <button class="btn btn-dark" @onclick="() =>EditTodo(todo)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() =>RemoveTodoAsync(todo)">Excluir</button>
+                    </td>
+                </tr>
+                @if(todo.Edit){
+                    <tr>
+                        <td colspan="5">
+                        <FormTodo EditedTodo="todo"></FormTodo>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}else{
+    <p>Nenhuma tarefa cadastrada</p>
+}
+
+<button class="btn btn-dark" @onclick="AddTodoAsync">Adicionar Tarefa</button>
+
+@code {
+    private List<Todo>? todos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetActiveTodosAsync();
+    }
+
+    private async Task GetActiveTodosAsync(){
+        todos = await todoService.GetActiveTodosAsync();
+    }
+    private async Task AddTodoAsync(){
+        await todoService.NewTodoAsync();
+        await GetActiveTodosAsync();
+    }
+
+    private void UpdateDoneDate(Todo todo){
+        if(todo.Done){
+            todo.DoneDate = null;
+            todo.Done = false;
+        }else{
+            todo.DoneDate = DateTime.Now;
+            todo.Done = true;
+        }
+    }
+    private async Task RemoveTodoAsync(Todo todo){
+        await todoService.RemoveTodoAsync(todo);
+        await GetActiveTodosAsync();
+    }
+    private void EditTodo(Todo todo){
+        todo.Edit = !todo.Edit;
+    }
+
+    private async Task ChangePriorityAsync(Todo todo){
+        var priorityIndex = (int)todo.Priority;
+        priorityIndex ++;
+        todo.Priority = priorityIndex > 3 ? TodoPriotity.Urgent : (TodoPriotity)priorityIndex; 
+        await todoService.UpdateTodoAsync(todo);
+    }
+}
