@@ -2,8 +2,7 @@
 Projeto .Net 8 - Utilizando Blazor na construção das páginas e componentes.
 
 <div align="center">
-<img src="https://github.com/Paulo-Galego/PedraPapelTesoura/assets/36347510/2ca3f912-4f76-438d-814d-c3369eb32c03.png" width="700px" />
 
-  
+<img alt="Image" src="https://github.com/user-attachments/assets/d7a20e53-f80d-47a6-9a61-3f79f69afcaa"  width="700px" />  
 </div>
 
